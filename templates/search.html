@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Engine</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body{
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-white w-full">
+    <div class="container mt-4 w-full flex flex-col md:flex-row">
+        <div class="flex">
+            <div class="flex relative right-48 mt-4">
+                <p style="width: 250px;">
+                    <p class="text-3xl text-blue-600 font-semibold" >G</p>
+                    <p class="text-3xl text-red-600 font-semibold" >a</p>
+                    <p class="text-3xl text-yellow-500 font-semibold" >t</p>
+                    <p class="text-3xl text-green-600 font-semibold" >o</p>
+                    <p class="text-3xl text-blue-600 font-semibold" >t</p>
+                    <p class="text-3xl text-red-600 font-semibold" >K</p>
+                    <p class="text-3xl text-yellow-500 font-semibold" >a</p>
+                    <p class="text-3xl text-blue-600 font-semibold" >c</p>
+                    <p class="text-3xl text-red-600 font-semibold" >a</p>
+                </p>
+            </div>
+            <div class="container w-full flex flex-col md:flex-row mt-5 relative right-60">
+                <div class="md:ml-32 flex flex-col ml-8">
+                    <div>
+                        <form class="flex gap-2" method="get" action="{{ url_for('search') }}">   
+                                <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                                <div class="" style="width: 800px;">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                            </svg>
+                                        </div>
+                                        <input type="search" autocomplete="off" name="search_query" id="default_search" class="relative right-4 block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." required>
+                                        <button type="submit" class="mr-4 text-gray-900 absolute end-2.5 bottom-2.5 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+                                    </div>
+                                </div>
+                        <div>
+                            <div class="flex relative mt-2 gap-2">
+                                {% if search_engines %}
+                                <!-- Dropdown untuk memilih mesin pencari -->
+                                <select name="search_engine" id="search_engine" class= " bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block w-22 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                {% for engine in search_engines %}
+                                {% if engine == search_engine %}
+                                <option class="rounded" value="{{ engine }}" selected>{{ engine }} </option>
+                                {% else %} 
+                                <option class="rounded" value="{{ engine }}">{{ engine }}</option>
+                                {% endif %}
+                                {% endfor %}
+                                </select>
+                                {% endif %}       
+                                {% if current_k %}
+                                <!-- Input teks untuk jumlah top dokumen -->
+                                <input type="number" id="top_documents" name="top_documents" value="{{ current_k }}" aria-describedby="helper-text-explanation" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block w-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required>
+                                {% else %}
+                                <!-- Input teks untuk jumlah top dokumen -->
+                                <input type="number" id="top_documents" name="top_documents" min="{{ current_k}}" value="60"
+                                    class="block ps-2 py-2 text-xl text-gray-900 border-black border bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 w-1/4 pr-2 mb-2">
+                    
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+        <div class="pt-4">
+            {% if search_engine == 'rankc' %}
+                <p class="text-2xl pb-2">Rank-C Result : </p>
+                    {% if results %}
+                    <div class="text-1xl" id="searchResults">
+                        <h2>Words:  {% for word in results.words %}
+                            {{ word.word }} ({{ word.fw }})
+                            {% endfor %}</h2>
+                        <h2>Distinct Terms: {{ results.distinct_terms }}</h2>
+                        {% if results.run_time %}
+                        <p>Time required: {{ '%.3f'|format(results.run_time) }} seconds</p>
+                        {% endif %}
+            <div class="mt-2">
+                <hr class="size-2 h-4">
+                <ul>
+                    {% for document in results.top_documents %}
+                    <div class="mb-6">
+                        <a href="page/{{ document.file }}" class="text-[#3300B5] hover:underline text-1xl">
+                            {{ document.title }}
+                        </a>
+                        <div class="flex gap-x-4">
+                            <a class="text-sm" href="page/{{ document.file }}">{{ document.file }}</a>
+                            <p class="text-sm">Document ID: {{ document.document_id }}</p>
+                            <p class="text-sm">Docno: {{ document.docno }}</p>
+                            <p class="text-sm">Ranked: {{ document.ranked }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% else %}
+        <p>No data received from Flask.</p>
+        {% endif %}
+    {% endif %}
+        </div>
+
+    <div>
+        {% if search_engine == 'swishe'%}
+        <p>Swish-E Result : </p>
+            {% if results %}
+            <div id="searchResults">
+                <h2>Search words: {{ results.search_words }}</h2>
+                <h2>Number of hits: {{ results.number_of_hits }}</h2>
+                <h2>Search time: {{ results.search_time }}</h2>
+                <h2>Run time: {{ results.run_time }}</h2>
+
+                <h2>Top Documents:</h2>
+               <div class="mt-4">
+                <ul>
+                    {% for document in results.documents %}
+                    <div class="mb-6">
+                        <a href="page/{{ document.file_path }}" class="text-[#3300B5] hover:underline text-2xl">
+                            {{ document.content }}
+                        </a>
+                        <div class="flex gap-x-4">
+                            <a href="page/{{ document.file_path }}">{{ document.file_path }}</a>
+                            <p>Ranked: {{ document.rank }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </ul>
+               </div>
+            </div>
+            {% else %}
+            <p>No data received from Flask.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+        </div>
+    </div>
+</body>
+
+</html>
